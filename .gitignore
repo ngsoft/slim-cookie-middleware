@@ -1,0 +1,6 @@
+*.lock
+*-lock.json
+/nbproject/*/
+/vendor
+/node_modules
+/dist
