@@ -114,9 +114,9 @@ class CookieMiddleware implements MiddlewareInterface
     /**
      * Adds a cookie to the response
      */
-    public function setCookie(string $name, int|float|bool|string $value, CookieParams $params = null): void
+    public function setCookie(string $name, int|float|bool|string $value, CookieParams $params = null): Cookie
     {
-        $this->addCookie($this->createCookie($name, $value, $params));
+        return $this->addCookie($this->createCookie($name, $value, $params));
     }
 
     /**
@@ -130,9 +130,9 @@ class CookieMiddleware implements MiddlewareInterface
     /**
      * Set a cookie to be deleted
      */
-    public function removeCookie(string $name): void
+    public function removeCookie(string $name): Cookie
     {
-        $this->setCookie($name, 'null', $this->params->withExpiresAfter(-1));
+        return $this->setCookie($name, 'null', $this->params->withExpiresAfter(-1));
     }
 
     /**
