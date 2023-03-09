@@ -1,10 +1,11 @@
 {
     "name": "ngsoft/slim-cookie-middleware",
-    "description": "A samesite cookie management for slim 4",
+    "description": "A samesite cookie and session management for slim 4",
     "keywords": [
         "psr-15",
         "middleware",
         "cookie",
+        "session",
         "samesite",
         "slim"
     ],
