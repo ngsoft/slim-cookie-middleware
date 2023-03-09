@@ -52,6 +52,33 @@ class CookieMiddleware implements MiddlewareInterface
         return $this->createResponse($handler->handle($request));
     }
 
+    /**
+     * Enable reponse management
+     */
+    public function enable(): void
+    {
+        $this->enabled = true;
+    }
+
+    /**
+     * Disable reponse management
+     */
+    public function disable(): void
+    {
+        $this->enabled = false;
+    }
+
+    /**
+     * Checks if reponse management is enabled
+     */
+    public function isEnabled(): bool
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * Adds cookies to the response
+     */
     protected function createResponse(ResponseInterface $response): ResponseInterface
     {
 
