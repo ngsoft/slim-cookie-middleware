@@ -1,0 +1,39 @@
+{
+    "name": "ngsoft/slim-cookie-middleware",
+    "description": "A samesite cookie management for slim 4",
+    "keywords": [
+        "psr-15",
+        "middleware",
+        "cookie",
+        "samesite",
+        "slim"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Aymeric Anger",
+            "role": "Developer",
+            "homepage": "https://github.com/ngsoft"
+        }
+    ],
+    "suggest": {},
+    "provide": {
+        "psr/http-server-middleware-implementation": "^1.0"
+    },
+    "conflict": {},
+    "require-dev": {
+        "slim/slim": "^4"
+    },
+    "require": {
+        "php": ">=8.1",
+        "psr/http-server-middleware": "^1.0",
+        "psr/http-factory": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "NGSOFT\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
