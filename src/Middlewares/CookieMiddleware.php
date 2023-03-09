@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace NGSOFT\Middlewares;
 
-use NGSOFT\Cookies\CookieParams;
+use NGSOFT\Cookies\{
+    Cookie, CookieParams
+};
 use Psr\Http\{
     Message\ResponseInterface, Message\ServerRequestInterface, Server\MiddlewareInterface, Server\RequestHandlerInterface
 };
@@ -37,9 +39,14 @@ class CookieMiddleware implements MiddlewareInterface
     protected function createResponse(ResponseInterface $response): ResponseInterface
     {
 
-        if (count($this->cookies['response']) && $this->enabled)
+        if ($this->enabled)
         {
 
+            /** @var Cookie $cookie */
+            foreach ($this->cookies['response'] as $cookie)
+            {
+                $response = $response->withAddedHeader('Set-Cookie', $cookie->getHeaderLine());
+            }
         }
 
 

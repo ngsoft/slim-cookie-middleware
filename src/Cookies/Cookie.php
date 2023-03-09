@@ -32,7 +32,19 @@ class Cookie implements Stringable
 
         $now = time();
 
-        [$expire, $now] = $params;
+        $expires = $params->expires;
+
+        $ttl = 0;
+
+        if ($expires !== 0)
+        {
+            $expires += $now;
+        }
+
+        if ($expires > $now)
+        {
+            $ttl = $expires - $now;
+        }
 
         if ($params->samesite === SameSite::None && $params->secure === false)
         {
@@ -40,22 +52,35 @@ class Cookie implements Stringable
         }
 
 
-        $result = sprintf('%s=%s', urlencode($this->name), urldecode($this->value));
-
-        if ( ! empty($params->domain))
-        {
-            $result .= sprintf('; Domain=%s', $params->domain);
-        }
+        $result = sprintf('%s=%s; SameSite=%s', urlencode($this->name), urldecode($this->value), $params->samesite->value);
 
         if ( ! empty($params->path))
         {
             $result .= sprintf('; Path=%s', $params->path);
         }
+        if ( ! empty($params->domain))
+        {
+            $result .= sprintf('; Domain=%s', $params->domain);
+        }
 
+        if ($expires > $now)
+        {
+            $result .= sprintf('; Expires=%s; Max-Age=%u', gmdate('D, d M Y H:i:s \G\M\T', $expires), $ttl);
+        }
+        else
+        {
+            $result .= sprintf('; Expires=%s; Max-Age=0', gmdate('D, d M Y H:i:s \G\M\T', $expires));
+        }
 
+        if ($params->secure)
+        {
+            $result .= '; Secure';
+        }
 
-
-
+        if ($params->httponly)
+        {
+            $result .= '; HttpOnly';
+        }
 
         return $result;
     }
@@ -66,6 +91,3 @@ class Cookie implements Stringable
     }
 
 }
-
-
-
