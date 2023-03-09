@@ -16,9 +16,6 @@ class CookieMiddleware implements MiddlewareInterface
 
     public const VERSION = '1.0.0';
     public const COOKIE_ATTRIBUTE = 'cookies';
-    protected const IGNORE_NAMES = [
-        'PHPSESSID'
-    ];
 
     protected array $cookies = [
         'response' => [],
@@ -51,10 +48,7 @@ class CookieMiddleware implements MiddlewareInterface
 
         foreach ($request->getCookieParams() as $name => $value)
         {
-            if ( ! in_array($name, static::IGNORE_NAMES))
-            {
-                $this->cookies['request'][$name] = $this->createCookie($name, $value, $reqParams);
-            }
+            $this->cookies['request'][$name] = $this->createCookie($name, $value, $reqParams);
         }
 
         return $this->createResponse($handler->handle($request));

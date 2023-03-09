@@ -13,7 +13,14 @@ class Session implements \NGSOFT\Interfaces\Storage
             protected string $id
     )
     {
+        session_id($id);
 
+        session_start([
+            'use_cookies' => false,
+            'use_only_cookies' => true
+        ]);
+
+        $this->data = $_SESSION;
     }
 
     public function getId(): string
@@ -39,12 +46,13 @@ class Session implements \NGSOFT\Interfaces\Storage
 
     public function getItem(string $key): mixed
     {
-
+        return $this->data[$key] ?? null;
     }
 
     public function hasItem(string $key): bool
     {
 
+        return $this->getItem($key) !== null;
     }
 
     public function key(int $index): ?string
@@ -54,12 +62,13 @@ class Session implements \NGSOFT\Interfaces\Storage
 
     public function removeItem(string $key): void
     {
-
+        unset($this->data[$key]);
     }
 
     public function setItem(string $key, mixed $value): void
     {
 
+        $this->data[$key] = $value;
     }
 
 }
