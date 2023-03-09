@@ -1,2 +1,2 @@
 # slim-cookie-middleware
-A samesite cookie management for slim 4
+A samesite cookie and session management for slim 4
