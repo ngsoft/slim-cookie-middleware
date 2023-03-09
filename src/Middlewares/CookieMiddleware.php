@@ -72,7 +72,7 @@ class CookieMiddleware implements MiddlewareInterface
     /**
      * Create a cookie
      */
-    public function createCookie(string $name, string $value, CookieParams $params = null): Cookie
+    public function createCookie(string $name, int|float|bool|string $value, CookieParams $params = null): Cookie
     {
         return new Cookie($name, $value, $params ?? $this->params);
     }
@@ -80,7 +80,7 @@ class CookieMiddleware implements MiddlewareInterface
     /**
      * Adds a cookie to the response
      */
-    public function setCookie(string $name, string $value, CookieParams $params = null): void
+    public function setCookie(string $name, int|float|bool|string $value, CookieParams $params = null): void
     {
         $this->cookies['response'] [$name] = $this->createCookie($name, $value, $params);
     }
@@ -90,7 +90,7 @@ class CookieMiddleware implements MiddlewareInterface
      */
     public function removeCookie(string $name): void
     {
-        $this->setCookie($name, 'deleted', $this->params->withExpires(-1));
+        $this->setCookie($name, 'null', $this->params->withExpires(-1));
     }
 
     /**
@@ -103,7 +103,7 @@ class CookieMiddleware implements MiddlewareInterface
         {
             if (isset($repository[$name]))
             {
-                return $repository[$name]->value;
+                return $repository[$name]->getValue();
             }
         }
 

@@ -22,7 +22,8 @@
     },
     "conflict": {},
     "require-dev": {
-        "slim/slim": "^4"
+        "slim/slim": "^4",
+        "symfony/var-dumper": "6.3.x-dev"
     },
     "require": {
         "php": ">=8.1",
