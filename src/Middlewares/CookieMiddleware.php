@@ -31,7 +31,17 @@ class CookieMiddleware implements MiddlewareInterface
     {
         $request = $request->withAttribute('cookies', $this);
 
-        $response = $handler->handle($request);
+        return $this->createResponse($handler->handle($request));
+    }
+
+    protected function createResponse(ResponseInterface $response): ResponseInterface
+    {
+
+        if (count($this->cookies['response']) && $this->enabled)
+        {
+
+        }
+
 
         return $response;
     }
