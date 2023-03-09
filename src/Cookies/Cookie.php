@@ -13,13 +13,13 @@ class Cookie implements Stringable
 
     protected const INVALID_NAME_REGEX = '/[=,; \t\r\n\013\014]/';
 
-    public string $name;
-    public string $value;
+    protected string $name;
+    protected string $value;
 
     public function __construct(
             string $name,
             int|float|bool|string $value,
-            public CookieParams $params = new CookieParams()
+            protected CookieParams $params = new CookieParams()
     )
     {
         $this->setName($name);
@@ -67,6 +67,11 @@ class Cookie implements Stringable
         }
 
         return $value;
+    }
+
+    public function getParams(): CookieParams
+    {
+        return $this->params;
     }
 
     public function getHeaderLine(): string
