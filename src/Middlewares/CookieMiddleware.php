@@ -82,7 +82,15 @@ class CookieMiddleware implements MiddlewareInterface
      */
     public function setCookie(string $name, int|float|bool|string $value, CookieParams $params = null): void
     {
-        $this->cookies['response'] [$name] = $this->createCookie($name, $value, $params);
+        $this->addCookie($this->createCookie($name, $value, $params));
+    }
+
+    /**
+     * Adds a cookie instance to the response
+     */
+    public function addCookie(Cookie $cookie): void
+    {
+        $this->cookies['response'] [$cookie->getName()] = $cookie;
     }
 
     /**
