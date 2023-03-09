@@ -55,7 +55,7 @@ class CookieMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Enable reponse management
+     * Enable response management
      */
     public function enable(): void
     {
@@ -63,7 +63,7 @@ class CookieMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Disable reponse management
+     * Disable response management
      */
     public function disable(): void
     {
@@ -71,7 +71,7 @@ class CookieMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Checks if reponse management is enabled
+     * Checks if response management is enabled
      */
     public function isEnabled(): bool
     {
@@ -117,9 +117,9 @@ class CookieMiddleware implements MiddlewareInterface
     /**
      * Adds a cookie instance to the response
      */
-    public function addCookie(Cookie $cookie): void
+    public function addCookie(Cookie $cookie): Cookie
     {
-        $this->cookies['response'] [$cookie->getName()] = $cookie;
+        return $this->cookies['response'] [$cookie->getName()] = $cookie;
     }
 
     /**

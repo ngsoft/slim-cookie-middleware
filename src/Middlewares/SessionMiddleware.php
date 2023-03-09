@@ -43,7 +43,7 @@ class SessionMiddleware implements MiddlewareInterface
 
         $response = $handler->handle(
                 $request->withAttribute(
-                        self::SESSION_ATTRIBUTE,
+                        static::SESSION_ATTRIBUTE,
                         $session = new Session($id, $_SESSION)
                 )
         );
