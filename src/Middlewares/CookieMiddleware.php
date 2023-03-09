@@ -4,10 +4,15 @@ declare(strict_types=1);
 
 namespace NGSOFT\Middlewares;
 
-use Psr\Http\Server\MiddlewareInterface;
+use NGSOFT\Cookies\CookieParams;
+use Psr\Http\{
+    Message\ResponseInterface, Message\ServerRequestInterface, Server\MiddlewareInterface, Server\RequestHandlerInterface
+};
 
 class CookieMiddleware implements MiddlewareInterface
 {
+
+    public const VERSION = '1.0.0';
 
     protected array $cookies = [
         'request' => [],
@@ -15,14 +20,14 @@ class CookieMiddleware implements MiddlewareInterface
     ];
 
     public function __construct(
-            protected string $params = [],
+            protected CookieParams $params = new CookieParams(),
             protected bool $enabled = true
     )
     {
 
     }
 
-    public function process(\Psr\Http\Message\ServerRequestInterface $request, \Psr\Http\Server\RequestHandlerInterface $handler): \Psr\Http\Message\ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $request = $request->withAttribute('cookies', $this);
 

@@ -13,6 +13,6 @@ class CookieParams
     public string $domain = '';
     public bool $secure = true;
     public bool $httponly = false;
-    public string $samesite = 'Strict';
+    public SameSite $samesite = SameSite::Lax;
 
 }
