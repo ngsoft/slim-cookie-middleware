@@ -7,8 +7,8 @@ namespace NGSOFT\Cookies;
 enum SameSite: string
 {
 
-    case Strict = 'Strict';
-    case Lax = 'Lax';
-    case None = 'None';
+    case STRICT = 'Strict';
+    case LAX = 'Lax';
+    case NONE = 'None';
 
 }

@@ -132,7 +132,7 @@ class CookieMiddleware implements MiddlewareInterface
      */
     public function removeCookie(string $name): void
     {
-        $this->setCookie($name, 'null', $this->params->withExpires(-1));
+        $this->setCookie($name, 'null', $this->params->withExpiresAfter(-1));
     }
 
     /**

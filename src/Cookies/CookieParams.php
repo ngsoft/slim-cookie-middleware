@@ -8,12 +8,12 @@ class CookieParams
 {
 
     public function __construct(
-            public int $expires = 0,
+            public int $expiresAfter = 0,
             public string $path = '',
             public string $domain = '',
             public bool $secure = true,
             public bool $httponly = false,
-            public SameSite $samesite = SameSite::Lax
+            public SameSite $samesite = SameSite::LAX
     )
     {
 
@@ -26,9 +26,9 @@ class CookieParams
         return $clone;
     }
 
-    public function withExpires(int $expires)
+    public function withExpiresAfter(int $expiresAfter)
     {
-        return $this->getClone('expires', $expires);
+        return $this->getClone('expiresAfter', $expiresAfter);
     }
 
     public function withPath(string $path)

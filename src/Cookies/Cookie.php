@@ -80,7 +80,7 @@ class Cookie implements Stringable
 
         $now = time();
 
-        $expires = $params->expires;
+        $expires = $params->expiresAfter;
 
         $ttl = 0;
 
