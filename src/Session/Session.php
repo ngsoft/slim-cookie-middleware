@@ -4,23 +4,14 @@ declare(strict_types=1);
 
 namespace NGSOFT\Session;
 
-class Session implements \NGSOFT\Interfaces\Storage
+use NGSOFT\Interfaces\Storage;
+
+class Session implements Storage
 {
 
-    protected array $data = [];
-
-    public function __construct(
-            protected string $id
-    )
+    public function __construct(protected string $id, protected array $data)
     {
-        session_id($id);
 
-        session_start([
-            'use_cookies' => false,
-            'use_only_cookies' => true
-        ]);
-
-        $this->data = $_SESSION;
     }
 
     public function getId(): string
@@ -28,10 +19,9 @@ class Session implements \NGSOFT\Interfaces\Storage
         return $this->id;
     }
 
-    public function save(): void
+    public function toArray(): array
     {
-        $_SESSION = $this->data;
-        session_write_close();
+        return $this->data;
     }
 
     public function count(): int
@@ -57,7 +47,7 @@ class Session implements \NGSOFT\Interfaces\Storage
 
     public function key(int $index): ?string
     {
-
+        return array_keys($this->data) [$index] ?? null;
     }
 
     public function removeItem(string $key): void
@@ -67,7 +57,6 @@ class Session implements \NGSOFT\Interfaces\Storage
 
     public function setItem(string $key, mixed $value): void
     {
-
         $this->data[$key] = $value;
     }
 

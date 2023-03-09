@@ -35,22 +35,28 @@ class SessionMiddleware implements MiddlewareInterface
                 session_abort();
         }
 
-
-        $session_name = session_name();
         $cookies = $request->getCookieParams();
-        $id = $cookies[$session_name] ?? $this->generateSessionId();
+        $id = $cookies[session_name()] ?? $this->generateSessionId();
 
-        $session = new Session($id);
+        session_id($id);
+        session_start(['use_cookies' => false, 'use_only_cookies' => true]);
 
-        $request = $request->withAttribute(self::SESSION_ATTRIBUTE, $session);
+        $response = $handler->handle(
+                $request->withAttribute(
+                        self::SESSION_ATTRIBUTE,
+                        $session = new Session($id, $_SESSION)
+                )
+        );
 
-        $response = $handler->handle($request);
+        $_SESSION = $session->toArray();
+        session_write_close();
 
-        $this->session->save();
-
-        if ( ! isset($cookies[$session_name]))
+        if ( ! isset($cookies[session_name()]))
         {
-            $cookie = new Cookie($session_name, $id, new CookieParams(secure: true, httponly: true, samesite: SameSite::STRICT));
+            $cookie = new Cookie(
+                    session_name(), $id,
+                    new CookieParams(secure: true, httponly: true, samesite: SameSite::STRICT)
+            );
             $response = $response->withAddedHeader('Set-Cookie', $cookie->getHeaderLine());
         }
 
