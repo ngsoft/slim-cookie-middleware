@@ -34,6 +34,9 @@ class CookieMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        /**
+         * Register middleware as attribute
+         */
         $request = $request->withAttribute('cookies', $this);
 
         $reqParams = new CookieParams();
