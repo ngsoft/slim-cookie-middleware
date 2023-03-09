@@ -20,8 +20,8 @@ class CookieMiddleware implements MiddlewareInterface
     ];
 
     protected array $cookies = [
-        'request' => [],
         'response' => [],
+        'request' => [],
     ];
 
     public function __construct(
@@ -82,9 +82,29 @@ class CookieMiddleware implements MiddlewareInterface
         $this->cookies['response'] [$name] = $this->createCookie($name, $value, $params);
     }
 
+    /**
+     * Set a cookie to be deleted
+     */
     public function removeCookie(string $name): void
     {
         $this->setCookie($name, 'deleted', $this->params->withExpires(-1));
+    }
+
+    /**
+     * Get a cookie value by name
+     */
+    public function getCookie(string $name, mixed $defaultValue = null): mixed
+    {
+
+        foreach ($this->cookies as $repository)
+        {
+            if (isset($repository[$name]))
+            {
+                return $repository[$name]->value;
+            }
+        }
+
+        return $defaultValue;
     }
 
 }
