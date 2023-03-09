@@ -36,11 +36,13 @@ class CookieMiddleware implements MiddlewareInterface
     {
         $request = $request->withAttribute('cookies', $this);
 
+        $reqParams = new CookieParams();
+
         foreach ($request->getCookieParams() as $name => $value)
         {
             if ( ! in_array($name, self::IGNORE_NAMES))
             {
-                $this->cookies['request'][$name] = $this->createCookie($name, $value);
+                $this->cookies['request'][$name] = $this->createCookie($name, $value, $reqParams);
             }
         }
 
