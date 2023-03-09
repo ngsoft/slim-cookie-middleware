@@ -94,7 +94,7 @@ class Cookie implements Stringable
             $ttl = $expires - $now;
         }
 
-        if ($params->samesite === SameSite::None && $params->secure === false)
+        if ($params->samesite === SameSite::NONE && $params->secure === false)
         {
             throw new RuntimeException('SameSite cannot be "None" when secure is false.');
         }
