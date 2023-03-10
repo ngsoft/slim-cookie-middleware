@@ -87,12 +87,10 @@ class Cookie implements Stringable
         if ($expires !== 0)
         {
             $expires += $now;
-        }
-
-        if ($expires > $now)
-        {
             $ttl = $expires - $now;
         }
+
+
 
         if ($params->samesite === SameSite::NONE && $params->secure === false)
         {
@@ -111,11 +109,11 @@ class Cookie implements Stringable
             $result .= sprintf('; Domain=%s', $params->domain);
         }
 
-        if ($expires > $now)
+        if ($ttl > 0)
         {
             $result .= sprintf('; Expires=%s; Max-Age=%u', gmdate('D, d M Y H:i:s \G\M\T', $expires), $ttl);
         }
-        else
+        elseif ($ttl < 0)
         {
             $result .= sprintf('; Expires=%s; Max-Age=0', gmdate('D, d M Y H:i:s \G\M\T', $expires));
         }
