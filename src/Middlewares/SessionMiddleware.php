@@ -17,15 +17,18 @@ use Psr\Http\{
 class SessionMiddleware implements MiddlewareInterface
 {
 
+    use \NGSOFT\Traits\ObjectLock;
+
     public const SESSION_ATTRIBUTE = 'session';
 
-    protected function generateSessionId(): string
+    protected function generateToken(): string
     {
         return bin2hex(random_bytes(16));
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+
 
         switch (session_status())
         {

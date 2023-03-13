@@ -14,7 +14,9 @@ use Psr\Http\{
 class CookieMiddleware implements MiddlewareInterface
 {
 
-    public const VERSION = '1.0.0';
+    use \NGSOFT\Traits\ObjectLock;
+
+    public const VERSION = '1.1.0';
     public const COOKIE_ATTRIBUTE = 'cookies';
 
     protected array $cookies = [
@@ -22,10 +24,7 @@ class CookieMiddleware implements MiddlewareInterface
         'request' => [],
     ];
 
-    public function __construct(
-            protected CookieParams $params = new CookieParams(),
-            protected bool $enabled = true
-    )
+    public function __construct(protected CookieParams $params = new CookieParams())
     {
 
     }
@@ -44,7 +43,7 @@ class CookieMiddleware implements MiddlewareInterface
          */
         $request = $request->withAttribute(static::COOKIE_ATTRIBUTE, $this);
 
-        $reqParams = new CookieParams();
+        $reqParams = $this->params;
 
         foreach ($request->getCookieParams() as $name => $value)
         {
@@ -55,36 +54,12 @@ class CookieMiddleware implements MiddlewareInterface
     }
 
     /**
-     * Enable response management
-     */
-    public function enable(): void
-    {
-        $this->enabled = true;
-    }
-
-    /**
-     * Disable response management
-     */
-    public function disable(): void
-    {
-        $this->enabled = false;
-    }
-
-    /**
-     * Checks if response management is enabled
-     */
-    public function isEnabled(): bool
-    {
-        return $this->enabled;
-    }
-
-    /**
      * Adds cookies to the response
      */
     protected function createResponse(ResponseInterface $response): ResponseInterface
     {
 
-        if ($this->enabled)
+        if ( ! $this->isLocked())
         {
 
             /** @var Cookie $cookie */

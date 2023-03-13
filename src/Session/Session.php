@@ -9,7 +9,7 @@ use NGSOFT\Interfaces\Storage;
 class Session implements Storage
 {
 
-    public function __construct(protected string $id, protected array $data)
+    public function __construct(protected string $id, protected array $data = [])
     {
 
     }
