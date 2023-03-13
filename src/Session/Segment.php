@@ -13,6 +13,12 @@ final class Segment implements Storage
 
     use StorageTrait;
 
+    public function __construct(string $identifier, array $data = [])
+    {
+        $this->identifier = $identifier;
+        $this->data = $data;
+    }
+
     /**
      * When passed a key name, will return that key's value.
      */
