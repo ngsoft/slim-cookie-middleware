@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace NGSOFT\Interfaces;
+namespace NGSOFT\DataStructure;
 
 interface Storage extends \Countable, \ArrayAccess
 {
@@ -36,4 +36,9 @@ interface Storage extends \Countable, \ArrayAccess
      * When passed a number n, returns the name of the nth key in a given Storage object.
      */
     public function key(int $index): ?string;
+
+    /**
+     * Count the storage if no value, else count the number of occurences of the value
+     */
+    public function count(mixed $value = null): int;
 }
