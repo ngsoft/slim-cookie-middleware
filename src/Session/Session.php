@@ -154,10 +154,8 @@ class Session implements Storage
 
     private function assertSegment(string $key): void
     {
-
         if ($this->hasSegment($key))
         {
-
             throw new RuntimeException(sprintf('Trying to access data by key "%s", but a segment exists with this identifier.'));
         }
     }
