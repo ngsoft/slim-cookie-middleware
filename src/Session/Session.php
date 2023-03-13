@@ -24,6 +24,22 @@ class Session implements Storage
         $this->import($data);
     }
 
+    public function offsetExists(mixed $offset): bool
+    {
+        return $this->hasSegment($offset) || $this->hasItem($offset);
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+
+        if ($this->hasSegment($offset))
+        {
+            return $this->getSegment($offset);
+        }
+
+        return $this->getItem($offset);
+    }
+
     /**
      * When passed a key name, will return that key's value.
      */
