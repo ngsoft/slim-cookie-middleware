@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace NGSOFT\Session;
 
+use Closure;
 use NGSOFT\{
     Interfaces\Storage, Traits\StorageTrait
 };
@@ -23,14 +24,47 @@ class Session implements Storage
         $this->import($data);
     }
 
+    /**
+     * When passed a key name, will return that key's value.
+     */
     public function getItem(string $key, mixed $defaultValue = null): mixed
     {
+        $this->assertSegment($key);
 
+        if ( ! $this->hasItem($key))
+        {
+            if ($defaultValue instanceof Closure || $this->checkValue($defaultValue))
+            {
+
+                $this->setItem($key, $defaultValue);
+            }
+            else
+            {
+                return $defaultValue;
+            }
+        }
+
+
+        return $this->data[$key];
     }
 
+    /**
+     * When passed a key name and value, will add that key to the storage, or update that key's
+     */
     public function setItem(string $key, mixed $value): void
     {
+        $this->assertSegment($key);
+        $this->assertValidValue($value = value($value));
+        $this->data[$key] = $value;
+    }
 
+    /**
+     * When passed a key name, will remove that key from the storage.
+     */
+    public function removeItem(string $key): void
+    {
+        $this->assertSegment($key);
+        unset($this->data[$key]);
     }
 
     /**
@@ -99,6 +133,16 @@ class Session implements Storage
             {
                 $this->addSegment($key, $value);
             }
+        }
+    }
+
+    private function assertSegment(string $key): void
+    {
+
+        if ($this->hasSegment($key))
+        {
+
+            throw new RuntimeException(sprintf('Trying to access data by key "%s", but a segment exists with this identifier.'));
         }
     }
 

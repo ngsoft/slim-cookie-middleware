@@ -10,33 +10,69 @@ trait StorageTrait
     protected string $identifier;
     private array $data;
 
-    abstract public function setItem(string $key, mixed $value): void;
-
-    abstract public function getItem(string $key, mixed $defaultValue = null): mixed;
-
-    abstract public function hasItem(string $key): bool;
-
-    abstract public function removeItem(string $key): void;
-
     public function __construct(string $identifier, array $data = [])
     {
         $this->identifier = $identifier;
         $this->data = $data;
     }
 
+    public function __debugInfo(): array
+    {
+        return [];
+    }
+
+    /**
+     * Gets storage identifier
+     */
     public function getIdentifier(): string
     {
         return $this->identifier;
     }
 
+    /**
+     * Exports storage to array
+     */
     public function toArray(): array
     {
         return $this->data;
     }
 
-    public function __debugInfo(): array
+    /**
+     * Clears the Storage.
+     */
+    public function clear(): void
     {
-        return [];
+        $this->data = [];
+    }
+
+    /**
+     * When passed a number n, returns the name of the nth key in a given Storage object.
+     */
+    public function key(int $index): ?string
+    {
+        return array_keys($this->data) [$index] ?? null;
+    }
+
+    /**
+     * Returns the storage length
+     */
+    public function count(): int
+    {
+        return count($this->data);
+    }
+
+    abstract public function setItem(string $key, mixed $value): void;
+
+    abstract public function getItem(string $key, mixed $defaultValue = null): mixed;
+
+    abstract public function removeItem(string $key): void;
+
+    /**
+     * When passed a key name, checks if it exists in the storage.
+     */
+    public function hasItem(string $key): bool
+    {
+        return array_key_exists($key, $this->data);
     }
 
     public function offsetExists(mixed $offset): bool
@@ -57,21 +93,6 @@ trait StorageTrait
     public function offsetUnset(mixed $offset): void
     {
         $this->removeItem($offset);
-    }
-
-    public function count(): int
-    {
-        return count($this->data);
-    }
-
-    public function clear(): void
-    {
-        $this->data = [];
-    }
-
-    public function key(int $index): ?string
-    {
-        return array_keys($this->data) [$index] ?? null;
     }
 
     private function checkValue(mixed $value): bool
