@@ -7,6 +7,7 @@ namespace NGSOFT\Session;
 use NGSOFT\{
     Interfaces\Storage, Traits\StorageTrait
 };
+use TypeError;
 
 class Session implements Storage
 {
@@ -24,13 +25,26 @@ class Session implements Storage
         }
 
 
-        if (array_key_exists($segment, $this->data))
+        if (array_key_exists($segment, $this->data) && is_array($value = $this->data[$segment]))
+        {
+            unset($this->data[$segment]);
+            return $this->segments[$segment] = new Segment($segment, $value);
+        }
+
+        throw new RuntimeException(sprintf('Segment "%s" does not exists.'));
+    }
+
+    public function addSegment(string $segment, array $data = []): Segment
+    {
+        if ($this->hasItem($segment))
+        {
+            throw new RuntimeException(sprintf('Cannot add segment "%s", data already exists with this name.', $segment));
+        }
+
+
+        if (isset($this->segments[$segment]))
         {
 
-            if (is_array($value = $this->data[$name]))
-            {
-
-            }
         }
     }
 

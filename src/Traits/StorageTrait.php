@@ -7,7 +7,7 @@ namespace NGSOFT\Traits;
 trait StorageTrait
 {
 
-    public function __construct(protected string $identifier, protected array $data = [])
+    public function __construct(protected string $identifier, private array $data = [])
     {
         $this->data = $data;
     }
