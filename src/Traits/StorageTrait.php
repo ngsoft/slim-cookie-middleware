@@ -59,15 +59,27 @@ trait StorageTrait
     }
 
     /** {@inheritdoc} */
-    public function getItem(string $key, mixed $defaultValue): mixed
+    public function getItem(string $key, mixed $defaultValue = null): mixed
     {
+
+        if ( ! $this->hasItem($key))
+        {
+            if ($this->checkValue($value = value($defaultValue)))
+            {
+                $this->setItem($key, $value);
+            }
+
+            return $value;
+        }
+
+
         return $this->data[$key];
     }
 
     /** {@inheritdoc} */
     public function hasItem(string $key): bool
     {
-        return $this->getItem($key) !== null;
+        return array_key_exists($key, $this->data);
     }
 
     /** {@inheritdoc} */
@@ -85,13 +97,18 @@ trait StorageTrait
     /** {@inheritdoc} */
     public function setItem(string $key, mixed $value): void
     {
-        if ( ! is_scalar($value) && ! is_array($value))
+        if ( ! $this->checkValue($value))
         {
             throw new InvalidArgumentException('$value is not of int|float|bool|string|array type.');
         }
 
 
         $this->data[$key] = $value;
+    }
+
+    private function checkValue(mixed $value): bool
+    {
+        return is_scalar($value) || is_array($value);
     }
 
 }
