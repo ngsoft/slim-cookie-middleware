@@ -32,7 +32,7 @@
     "require": {
         "php": ">=8.1",
         "psr/http-server-middleware": "^1.0",
-        "ngsoft/tools": "^3"
+        "ngsoft/tools": "^3.0.1"
     },
     "autoload": {
         "psr-4": {
