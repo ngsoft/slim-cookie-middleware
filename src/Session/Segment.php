@@ -177,9 +177,13 @@ class Segment implements Storage, Stringable
 
         $value = value($value);
 
-        if ($value !== $this && $value instanceof Segment)
+        // Session extends Segment so to not inject session into session or segment we do this
+        if (is_object($value) && get_class($value) === self::class)
         {
-            $value = $value->toArray();
+            if ($value->data !== $this->data)
+            {
+                $value = $value->data;
+            }
         }
 
         $this->assertValidValue($value);
