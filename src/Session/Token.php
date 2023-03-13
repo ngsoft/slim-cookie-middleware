@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace NGSOFT\Session;
 
-final class Token implements \Stringable
+final class Token implements \Stringable, \JsonSerializable
 {
 
     public const DEFAULT_PREFIX = 'csrf';
@@ -21,10 +21,22 @@ final class Token implements \Stringable
     public static function generateToken(string $prefix = self::DEFAULT_PREFIX, int $strength = self::MIN_STRENGTH): static
     {
 
-        $name = uniqid($prefix);
-        $value = self::generateRandomString($strength);
+        [$name, $value] = self::generateTokenValues($prefix, $strength);
 
-        return new static($name, $value);
+        return new static($name, $value, $prefix);
+    }
+
+    /**
+     * Load token with its values
+     */
+    public static function load(string $name, string $value, string $prefix): static
+    {
+        return new static($name, $value, $prefix);
+    }
+
+    private static function generateTokenValues(string $prefix, int $strength): array
+    {
+        return [uniqid($prefix), self::generateRandomString($strength)];
     }
 
     private static function maskTokenValue(string $value): string
@@ -55,7 +67,8 @@ final class Token implements \Stringable
 
     public function __construct(
             private readonly string $name,
-            private readonly string $value
+            private readonly string $value,
+            private readonly string $prefix
     )
     {
 
@@ -86,6 +99,11 @@ final class Token implements \Stringable
         return hash_equals($this->value, self::unmaskTokenValue($token->value));
     }
 
+    public function getPrefix(): string
+    {
+        return $this->prefix;
+    }
+
     public function getName(): string
     {
         return $this->name;
@@ -101,17 +119,29 @@ final class Token implements \Stringable
         return self::maskTokenValue($this->getValue());
     }
 
-    public function getHtml(string $prefix = self::DEFAULT_PREFIX): string
+    public function getHtml(): string
     {
         return sprintf(
                 '<input type="hidden" name="%s_name" value="%s"><input type="hidden" name="%s_value" value="%s">',
-                $prefix, $this->getName(), $prefix, $this->getMaskedValue()
+                $this->getPrefix(), $this->getName(), $this->getPrefix(), $this->getMaskedValue()
         );
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        $value = $this->getValue();
+
+        if (substr($value, -2) !== '==')
+        {
+            $value = $this->getMaskedValue();
+        }
+
+        return [$this->getName() => $value];
     }
 
     public function __toString(): string
     {
-        return '';
+        return json_encode($this, JSON_UNESCAPED_SLASHES);
     }
 
 }
