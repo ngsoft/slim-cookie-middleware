@@ -97,6 +97,8 @@ trait StorageTrait
     /** {@inheritdoc} */
     public function setItem(string $key, mixed $value): void
     {
+        $value = value($value);
+
         if ( ! $this->checkValue($value))
         {
             throw new InvalidArgumentException('$value is not of int|float|bool|string|array type.');
