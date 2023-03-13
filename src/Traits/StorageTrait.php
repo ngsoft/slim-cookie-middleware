@@ -7,7 +7,7 @@ namespace NGSOFT\Traits;
 trait StorageTrait
 {
 
-    public function __construct(private string $identifier, private array $data = [])
+    public function __construct(protected string $identifier, protected array $data = [])
     {
         $this->data = $data;
     }
@@ -59,7 +59,7 @@ trait StorageTrait
     }
 
     /** {@inheritdoc} */
-    public function getItem(string $key): mixed
+    public function getItem(string $key, mixed $defaultValue): mixed
     {
         return $this->data[$key];
     }

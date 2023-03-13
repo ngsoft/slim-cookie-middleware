@@ -31,7 +31,8 @@
     },
     "require": {
         "php": ">=8.1",
-        "psr/http-server-middleware": "^1.0"
+        "psr/http-server-middleware": "^1.0",
+        "ngsoft/tools": "^3"
     },
     "autoload": {
         "psr-4": {

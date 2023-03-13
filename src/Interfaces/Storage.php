@@ -15,7 +15,7 @@ interface Storage extends \Countable, \ArrayAccess
     /**
      * When passed a key name, will return that key's value.
      */
-    public function getItem(string $key): mixed;
+    public function getItem(string $key, mixed $defaultValue): mixed;
 
     /**
      * When passed a key name and value, will add that key to the storage, or update that key's
