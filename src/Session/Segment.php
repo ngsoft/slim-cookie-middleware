@@ -8,16 +8,8 @@ use NGSOFT\{
     Interfaces\Storage, Traits\StorageTrait
 };
 
-class Session implements Storage
+final class Segment implements Storage
 {
 
     use StorageTrait;
-
-    private array $segments = [];
-
-    public function getSegment(string $segment)
-    {
-
-    }
-
 }
