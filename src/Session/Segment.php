@@ -12,4 +12,15 @@ final class Segment implements Storage
 {
 
     use StorageTrait;
+
+    public function getItem(string $key, mixed $defaultValue = null): mixed
+    {
+
+    }
+
+    public function setItem(string $key, mixed $value): void
+    {
+
+    }
+
 }

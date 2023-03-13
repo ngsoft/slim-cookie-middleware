@@ -7,8 +7,20 @@ namespace NGSOFT\Traits;
 trait StorageTrait
 {
 
-    public function __construct(protected string $identifier, private array $data = [])
+    protected string $identifier;
+    private array $data;
+
+    abstract public function setItem(string $key, mixed $value): void;
+
+    abstract public function getItem(string $key, mixed $defaultValue = null): mixed;
+
+    abstract public function hasItem(string $key): bool;
+
+    abstract public function removeItem(string $key): void;
+
+    public function __construct(string $identifier, array $data = [])
     {
+        $this->identifier = $identifier;
         $this->data = $data;
     }
 
@@ -52,65 +64,27 @@ trait StorageTrait
         return count($this->data);
     }
 
-    /** {@inheritdoc} */
     public function clear(): void
     {
         $this->data = [];
     }
 
-    /** {@inheritdoc} */
-    public function getItem(string $key, mixed $defaultValue = null): mixed
-    {
-
-        if ( ! $this->hasItem($key))
-        {
-            if ($this->checkValue($value = value($defaultValue)))
-            {
-                $this->setItem($key, $value);
-            }
-
-            return $value;
-        }
-
-
-        return $this->data[$key];
-    }
-
-    /** {@inheritdoc} */
-    public function hasItem(string $key): bool
-    {
-        return array_key_exists($key, $this->data);
-    }
-
-    /** {@inheritdoc} */
     public function key(int $index): ?string
     {
         return array_keys($this->data) [$index] ?? null;
     }
 
-    /** {@inheritdoc} */
-    public function removeItem(string $key): void
-    {
-        unset($this->data[$key]);
-    }
-
-    /** {@inheritdoc} */
-    public function setItem(string $key, mixed $value): void
-    {
-        $value = value($value);
-
-        if ( ! $this->checkValue($value))
-        {
-            throw new InvalidArgumentException('$value is not of int|float|bool|string|array type.');
-        }
-
-
-        $this->data[$key] = $value;
-    }
-
     private function checkValue(mixed $value): bool
     {
         return is_scalar($value) || is_array($value);
+    }
+
+    private function assertValidValue(mixed $value): void
+    {
+        if ( ! $this->checkValue($value))
+        {
+            throw new InvalidArgumentException(sprintf('$value of type %s is not of int|float|bool|string|array type.', get_debug_type($value)));
+        }
     }
 
 }
