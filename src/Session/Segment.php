@@ -37,6 +37,14 @@ class Segment implements Storage, Stringable
     protected function import(array $data)
     {
         $this->clear();
+
+        foreach ($data as $key => $value)
+        {
+            if ($this->checkValue($value = value($value)))
+            {
+                $this->setItem($key, $value);
+            }
+        }
     }
 
     protected function checkValue(mixed $value): bool
@@ -50,6 +58,28 @@ class Segment implements Storage, Stringable
         {
             throw new ValueError(sprintf('$value of type %s is not of int|float|bool|string|array type.', get_debug_type($value)));
         }
+    }
+
+    /**
+     * Get Storage identifier
+     */
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
+    }
+
+    /**
+     * Extract the storage to an array
+     */
+    public function toArray(): array
+    {
+        return $this->data;
+    }
+
+    public function jsonSerialize(): mixed
+    {
+
+        return $this->toArray();
     }
 
     /**
@@ -74,6 +104,11 @@ class Segment implements Storage, Stringable
         if ($value instanceof Segment)
         {
             $value = $value->toArray();
+        }
+
+        if ( ! $this->checkValue($value))
+        {
+            return 0;
         }
 
         return count_value($value->toArray(), $this->data);
@@ -139,9 +174,45 @@ class Segment implements Storage, Stringable
      */
     public function setItem(string $key, mixed $value): void
     {
-        $this->assertValidValue($value = value($value));
+
+        $value = value($value);
+
+        if ($value !== $this && $value instanceof Segment)
+        {
+            $value = $value->toArray();
+        }
+
+        $this->assertValidValue($value);
+
+        if (is_array($value))
+        {
+            $segment = new Segment($key, $value);
+            $this->data[$key] = $segment->data;
+            return;
+        }
+
         $this->removeItem($key);
         $this->data[$key] = $value;
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return $this->hasItem($offset);
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->getItem($offset);
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        $this->setItem($offset, $value);
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        $this->removeItem($offset);
     }
 
 }
