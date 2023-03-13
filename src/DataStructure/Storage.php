@@ -34,6 +34,7 @@ interface Storage extends \Countable, \ArrayAccess, \JsonSerializable
 
     /**
      * When passed a number n, returns the name of the nth key in a given Storage object.
+     * if n is negative value, returns the name of the nth key from the end of the storage object.
      */
     public function key(int $index): ?string;
 
