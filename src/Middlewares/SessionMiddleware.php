@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace NGSOFT\Middlewares;
 
 use NGSOFT\{
-    Cookies\Cookie, Cookies\CookieParams, Cookies\SameSite, Session\Session
+    Cookies\Cookie, Cookies\CookieParams, Cookies\SameSite, Session\Session, Session\Token, Traits\ObjectLock
 };
 use Psr\Http\{
     Message\ResponseInterface, Message\ServerRequestInterface, Server\MiddlewareInterface, Server\RequestHandlerInterface
@@ -17,18 +17,12 @@ use Psr\Http\{
 class SessionMiddleware implements MiddlewareInterface
 {
 
-    use \NGSOFT\Traits\ObjectLock;
-
     public const SESSION_ATTRIBUTE = 'session';
 
-    protected function generateToken(): string
-    {
-        return bin2hex(random_bytes(16));
-    }
+    protected Session $session;
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-
 
         switch (session_status())
         {
@@ -38,33 +32,105 @@ class SessionMiddleware implements MiddlewareInterface
                 session_abort();
         }
 
+
+        /** @var CookieMiddleware|null $cookieMiddleware */
+        $cookieMiddleware = $request->getAttribute(CookieMiddleware::COOKIE_ATTRIBUTE);
+
+        $random = Token::generateRandomString();
+
         $cookies = $request->getCookieParams();
-        $id = $cookies[session_name()] ?? $this->generateSessionId();
+        $id = $cookies[session_name()] ?? Token::generateRandomString();
 
-        session_id($id);
-        session_start(['use_cookies' => false, 'use_only_cookies' => true]);
-
-        $response = $handler->handle(
-                $request->withAttribute(
-                        static::SESSION_ATTRIBUTE,
-                        $session = new Session($id, $_SESSION)
-                )
-        );
-
-        $_SESSION = $session->toArray();
-        session_write_close();
-
-        if ( ! isset($cookies[session_name()]))
+        if ($cookieMiddleware instanceof CookieMiddleware)
         {
-            $cookie = new Cookie(
-                    session_name(), $id,
-                    new CookieParams(secure: true, httponly: true, samesite: SameSite::STRICT)
+
+            if ($id = $cookieMiddleware->getCookie(session_name()))
+            {
+                $session = new Session($id, $this->loadSession($id));
+            }
+            else
+            {
+                $session = new Session($random);
+            }
+
+
+            $response = $handler->handle(
+                    $request->withAttribute(
+                            static::SESSION_ATTRIBUTE,
+                            $session
+                    )
             );
-            $response = $response->withAddedHeader('Set-Cookie', $cookie->getHeaderLine());
+
+            if ( ! $cookieMiddleware->isLocked())
+            {
+                $this->saveSession($random, $session->toArray());
+            }
+
+            if (is_null($id))
+            {
+
+                $cookieMiddleware->addCookie(
+                        new Cookie(session_name(), $random,
+                                new CookieParams(
+                                        secure: true,
+                                        httponly: true,
+                                        samesite: SameSite::STRICT
+                                )
+                        )
+                );
+            }
+            return $response;
         }
 
+        return $handler->handle($request->withAttribute(self::SESSION_ATTRIBUTE, new Session($random)));
+    }
 
-        return $response;
+    protected function abortSession(): void
+    {
+        if (PHP_SESSION_ACTIVE === session_status())
+        {
+            @session_abort();
+        }
+    }
+
+    protected function loadSession(string $id): array
+    {
+
+        $this->abortSession();
+
+        try
+        {
+
+            @session_id($id);
+            if (@session_start(['use_cookies' => false, 'use_only_cookies' => true]))
+            {
+                return $_SESSION;
+            }
+
+            return [];
+        }
+        finally
+        {
+            $this->abortSession();
+        }
+    }
+
+    protected function saveSession(string $id, array $data): void
+    {
+        $this->abortSession();
+
+        try
+        {
+            @session_id($id);
+            if (@session_start(['use_cookies' => false, 'use_only_cookies' => true]))
+            {
+                $_SESSION = $data;
+            }
+        }
+        finally
+        {
+            @session_write_close();
+        }
     }
 
 }
