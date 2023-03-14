@@ -7,6 +7,7 @@ namespace NGSOFT\Cookies;
 use InvalidArgumentException,
     RuntimeException,
     Stringable;
+use const NGSOFT\Tools\DAY;
 
 class Cookie implements Stringable
 {
@@ -80,7 +81,7 @@ class Cookie implements Stringable
 
         $now = time();
 
-        $expires = $params->expiresAfter;
+        $expires = $params->expiresAfter * DAY;
 
         $ttl = 0;
 

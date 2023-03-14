@@ -69,7 +69,6 @@ class CookieMiddleware implements MiddlewareInterface
             }
         }
 
-
         return $response;
     }
 
