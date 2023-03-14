@@ -31,6 +31,7 @@ class SessionMiddleware implements MiddlewareInterface
         {
             /** @var CookieMiddleware|null $cookieMiddleware */
             $cookieMiddleware = $request->getAttribute(CookieMiddleware::COOKIE_ATTRIBUTE);
+
             if ($cookieMiddleware instanceof CookieMiddleware)
             {
 
@@ -53,15 +54,16 @@ class SessionMiddleware implements MiddlewareInterface
 
                 if ( ! $cookieMiddleware->isLocked())
                 {
-                    $this->saveSession($random, $session->toArray());
+                    $this->saveSession($session);
                 }
 
                 if (is_null($id))
                 {
 
                     $cookieMiddleware->addCookie(
-                            new Cookie(session_name(), $random,
+                            new Cookie(session_name(), $session->getIdentifier(),
                                     new CookieParams(
+                                            path: '/',
                                             secure: true,
                                             httponly: true,
                                             samesite: SameSite::STRICT
@@ -106,16 +108,16 @@ class SessionMiddleware implements MiddlewareInterface
         }
     }
 
-    protected function saveSession(string $id, array $data): void
+    protected function saveSession(Session $session): void
     {
         $this->abortSession();
 
         try
         {
-            @session_id($id);
+            @session_id($session->getIdentifier());
             if (@session_start(['use_cookies' => false, 'use_only_cookies' => true]))
             {
-                $_SESSION = $data;
+                $_SESSION = $session->toArray();
             }
         }
         finally
