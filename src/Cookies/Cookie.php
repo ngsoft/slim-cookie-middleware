@@ -28,7 +28,7 @@ class Cookie implements Stringable
     }
 
     /**
-     * Get a new cookie with defined params
+     * Get a new cookie with defined attributes
      */
     public function withAttributes(CookieAttributes $params): static
     {
@@ -37,6 +37,9 @@ class Cookie implements Stringable
         return $clone;
     }
 
+    /**
+     * Get a new cookie with provided name and value
+     */
     public function withKeyValuePair(string $name, int|float|bool|string $value): static
     {
         return $this->withName($name)->withValue($value);
@@ -63,7 +66,10 @@ class Cookie implements Stringable
         return $clone;
     }
 
-    protected function setName(string $name)
+    /**
+     * Modify the cookie name
+     */
+    public function setName(string $name)
     {
         if (empty($name) || preg_match(self::INVALID_NAME_REGEX, $name))
         {
@@ -74,18 +80,27 @@ class Cookie implements Stringable
         return $this;
     }
 
-    protected function setValue(int|float|bool|string $value)
+    /**
+     * Modify the cookie value
+     */
+    public function setValue(int|float|bool|string $value)
     {
         $this->value = is_string($value) ? $value : json_encode($value);
         return $this;
     }
 
+    /**
+     * Cookie name
+     */
     public function getName(): string
     {
         return $this->name;
     }
 
-    public function getValue(): mixed
+    /**
+     * Cookie parsed value
+     */
+    public function getValue(): int|float|bool|string
     {
 
         $value = $this->value;
@@ -98,11 +113,17 @@ class Cookie implements Stringable
         return $value;
     }
 
-    public function getAttributes(): CookieParams
+    /**
+     * CookieAttributes
+     */
+    public function getAttributes(): CookieAttributes
     {
         return $this->attributes;
     }
 
+    /**
+     * Generates the header line to be used in the Response
+     */
     public function getHeaderLine(): string
     {
         $params = $this->attributes;
