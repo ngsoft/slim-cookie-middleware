@@ -8,7 +8,6 @@ class CookieAttributes
 {
 
     /**
-     *
      * @param int $expiresAfter Days before expiration
      * @param string $path cookie path
      * @param string $domain cookie domain
@@ -26,6 +25,29 @@ class CookieAttributes
     )
     {
 
+    }
+
+    /**
+     * Create a new cookie attribute
+     *
+     *
+     * @param int $expiresAfter Days before expiration
+     * @param string $path cookie path
+     * @param string $domain cookie domain
+     * @param bool $secure https
+     * @param bool $httponly Javascript does realy need to read this cookie ?
+     * @param SameSite $samesite Samesite attribute
+     */
+    public static function create(
+            int $expiresAfter = 0,
+            string $path = '',
+            string $domain = '',
+            bool $secure = true,
+            bool $httponly = false,
+            SameSite $samesite = SameSite::LAX
+    ): static
+    {
+        return new static($expiresAfter, $path, $domain, $secure, $httponly, $samesite);
     }
 
     protected function getClone(string $prop, mixed $value): static

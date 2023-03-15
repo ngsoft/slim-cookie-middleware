@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace NGSOFT\Middlewares;
 
 use NGSOFT\{
-    Cookies\Cookie, Cookies\CookieAttributes, Cookies\CookieParams, Session\Session, Traits\ObjectLock
+    Cookies\Cookie, Cookies\CookieAttributes, Cookies\CookieParams, Cookies\SameSite, Session\Session, Traits\ObjectLock
 };
 use Psr\Http\{
     Message\ResponseInterface, Message\ServerRequestInterface, Server\MiddlewareInterface, Server\RequestHandlerInterface
@@ -25,6 +25,7 @@ class CookieMiddleware implements MiddlewareInterface
         'response' => [],
         'request' => [],
     ];
+    protected Session $session;
 
     public function __construct(
             protected CookieAttributes $params = new CookieAttributes(),
@@ -67,9 +68,7 @@ class CookieMiddleware implements MiddlewareInterface
 
         if ( ! $this->isLocked())
         {
-
-
-
+            $response = $this->generateSessionResponse($response);
 
             /** @var Cookie $cookie */
             foreach ($this->cookies['response'] as $cookie)
@@ -104,11 +103,35 @@ class CookieMiddleware implements MiddlewareInterface
         if (PHP_SESSION_DISABLED === session_status())
         {
             $this->managesSession = false;
-            return $request->withAttribute(self::SESSION_ATTRIBUTE, new Session($this->generateRandomString()));
+            return $request->withAttribute(self::SESSION_ATTRIBUTE, $this->session = new Session($this->generateRandomString()));
         }
 
 
-        return $request->withAttribute(self::SESSION_ATTRIBUTE, new Session($this->getCookie(session_name(), $this->generateRandomString()), true));
+        return $request->withAttribute(self::SESSION_ATTRIBUTE, $this->session = new Session($this->getCookie(session_name(), $this->generateRandomString()), true));
+    }
+
+    protected function generateSessionResponse(ResponseInterface $response): ResponseInterface
+    {
+
+        if ( ! $this->managesSession)
+        {
+            return $response;
+        }
+
+
+        if ( ! $this->hasCookie($name = session_name()))
+        {
+
+            $this->addCookie(Cookie::create(
+                            $name, $this->session->getIdentifier(),
+                            CookieAttributes::create(
+                                    path: '/',
+                                    secure: true,
+                                    httponly: true,
+                                    samesite: SameSite::STRICT
+                            )
+            ));
+        }
     }
 
     ////////////////////////////   Cookie Handling   ////////////////////////////
@@ -162,9 +185,30 @@ class CookieMiddleware implements MiddlewareInterface
         return value($defaultValue);
     }
 
+    /**
+     * Checks if a cookie with this value exists
+     */
     public function hasCookie(string $name): bool
     {
         return $this->getCookie($name) !== null;
+    }
+
+    /**
+     * Get cookies from the request
+     * @return Cookie[]
+     */
+    public function getRequestCookies(): array
+    {
+        return array_values($this->cookies['request']);
+    }
+
+    /**
+     * Get cookies currently added to the response
+     * @return Cookie[]
+     */
+    public function getResponseCookies(): array
+    {
+        return array_values($this->cookies['response']);
     }
 
 }
