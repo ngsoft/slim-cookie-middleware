@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace NGSOFT\Cookies;
 
 use InvalidArgumentException,
-    RuntimeException,
+    NGSOFT\Middlewares\CookieMiddleware,
     Stringable;
 use const NGSOFT\Tools\DAY;
 
@@ -33,6 +33,14 @@ class Cookie implements Stringable
     {
         $this->setName($name);
         $this->setValue($value);
+    }
+
+    /**
+     * Adds the cookie to the middleware to be sent to the response
+     */
+    public function sendToResponse(CookieMiddleware $cookieMiddleware): void
+    {
+        $cookieMiddleware->addCookie($this);
     }
 
     /**
