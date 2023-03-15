@@ -134,11 +134,11 @@ class Cookie implements Stringable
      */
     public function getHeaderLine(): string
     {
-        $params = $this->attributes;
+        $attributes = $this->attributes;
 
         $now = time();
 
-        $expires = $params->expiresAfter * DAY;
+        $expires = $attributes->expiresAfter * DAY;
 
         $ttl = 0;
 
@@ -150,21 +150,21 @@ class Cookie implements Stringable
 
 
 
-        if ($params->samesite === SameSite::NONE && $params->secure === false)
+        if ($attributes->samesite === SameSite::NONE)
         {
-            throw new RuntimeException('SameSite cannot be "None" when secure is false.');
+            $attributes->secure = true;
         }
 
 
-        $result = sprintf('%s=%s; SameSite=%s', urlencode($this->name), urldecode($this->value), $params->samesite->value);
+        $result = sprintf('%s=%s; SameSite=%s', urlencode($this->name), urldecode($this->value), $attributes->samesite->value);
 
-        if ( ! empty($params->path))
+        if ( ! empty($attributes->path))
         {
-            $result .= sprintf('; Path=%s', $params->path);
+            $result .= sprintf('; Path=%s', $attributes->path);
         }
-        if ( ! empty($params->domain))
+        if ( ! empty($attributes->domain))
         {
-            $result .= sprintf('; Domain=%s', $params->domain);
+            $result .= sprintf('; Domain=%s', $attributes->domain);
         }
 
         if ($ttl > 0)
@@ -176,12 +176,12 @@ class Cookie implements Stringable
             $result .= sprintf('; Expires=%s; Max-Age=0', gmdate('D, d M Y H:i:s \G\M\T', $expires));
         }
 
-        if ($params->secure)
+        if ($attributes->secure)
         {
             $result .= '; Secure';
         }
 
-        if ($params->httponly)
+        if ($attributes->httponly)
         {
             $result .= '; HttpOnly';
         }
