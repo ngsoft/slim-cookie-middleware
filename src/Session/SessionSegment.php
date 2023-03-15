@@ -64,6 +64,14 @@ class SessionSegment implements Storage, Stringable, ReversibleIterator
         }
     }
 
+    protected function createSegment($key): self
+    {
+        // modifications in the segment will also be made in the parent array
+        $segment = new SessionSegment($key);
+        $segment->data = &$this->data[$key];
+        return $segment;
+    }
+
     /**
      * Get Storage identifier
      */
@@ -128,7 +136,7 @@ class SessionSegment implements Storage, Stringable, ReversibleIterator
         {
             if (is_array($this->data[$key]))
             {
-                return $this->segments[$key] ??= new SessionSegment($key, $this->data[$key]);
+                return $this->segments[$key] ??= $this->createSegment($key);
             }
 
             return $this->data[$key];
@@ -192,9 +200,10 @@ class SessionSegment implements Storage, Stringable, ReversibleIterator
             }
 
             $this->assertValidValue($value);
-
+            // we check data recursively
             if (is_array($value))
             {
+                // this segment will never be used except for this
                 $segment = new SessionSegment($key, $value);
                 $this->data[$key] = $segment->data;
                 return;
@@ -235,9 +244,7 @@ class SessionSegment implements Storage, Stringable, ReversibleIterator
     public function entries(Sort $sort = Sort::ASC): iterable
     {
 
-
-
-        foreach (Range::of($this) as $index)
+        foreach (Range::of($this)->entries($sort) as $index)
         {
             $key = $this->key($index);
 
