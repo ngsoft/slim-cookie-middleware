@@ -19,6 +19,7 @@ class CookieMiddleware implements MiddlewareInterface
 
     public const VERSION = '1.1.0';
     public const COOKIE_ATTRIBUTE = 'cookies';
+    public const SESSION_ATTRIBUTE = 'session';
 
     protected array $cookies = [
         'response' => [],
@@ -26,7 +27,7 @@ class CookieMiddleware implements MiddlewareInterface
     ];
 
     public function __construct(
-            protected CookieAttributes $params = new CookieAttributes()
+            protected CookieAttributes $params = new CookieAttributes(),
     )
     {
 
@@ -55,6 +56,26 @@ class CookieMiddleware implements MiddlewareInterface
 
         return $this->createResponse($handler->handle($request));
     }
+
+    ////////////////////////////   Session Handling   ////////////////////////////
+
+    protected function generateRandomString(int $strength = 16): string
+    {
+        return bin2hex(random_bytes(intval(max(16, $strength))));
+    }
+
+    /**
+     * Session Handling integrated middleware
+     */
+    protected function processSession(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    {
+        if (PHP_SESSION_DISABLED === session_status())
+        {
+            return $response;
+        }
+    }
+
+    ////////////////////////////   Cookie Handling   ////////////////////////////
 
     /**
      * Adds cookies to the response
