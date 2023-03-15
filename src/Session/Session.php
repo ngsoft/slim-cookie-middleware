@@ -10,13 +10,13 @@ namespace NGSOFT\Session;
 final class Session extends SessionSegment
 {
 
-    public function __construct(string $identifier, private bool $initializeSession = true)
+    public function __construct(string $identifier, bool $initializeSession = false)
     {
         parent::__construct($identifier);
 
-        $this->initializeSession = php_sapi_name() !== 'cli' && $initializeSession;
+        $initializeSession = php_sapi_name() !== 'cli' && $initializeSession;
 
-        if ($this->initializeSession)
+        if ($initializeSession)
         {
             /**
              * Session data will not be recorded
