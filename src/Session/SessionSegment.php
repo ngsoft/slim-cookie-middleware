@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace NGSOFT\Session;
 
 use NGSOFT\{
-    DataStructure\Storage, Traits\ClassUtils, Traits\StringableObject
+    DataStructure\Range, DataStructure\ReversibleIterator, DataStructure\Sort, DataStructure\Storage, Traits\ReversibleIteratorTrait, Traits\StringableObject
 };
 use Stringable,
     ValueError;
@@ -16,11 +16,11 @@ use function get_debug_type,
 /**
  *
  */
-class SessionSegment implements Storage, Stringable
+class SessionSegment implements Storage, Stringable, ReversibleIterator
 {
 
     use StringableObject,
-        ClassUtils;
+        ReversibleIteratorTrait;
 
     protected array $data;
     protected array $segments;
@@ -115,7 +115,7 @@ class SessionSegment implements Storage, Stringable
             return 0;
         }
 
-        return count_value($value->toArray(), $this->data);
+        return count_value($value, $this->data);
     }
 
     /**
@@ -178,29 +178,35 @@ class SessionSegment implements Storage, Stringable
      */
     public function setItem(string $key, mixed $value): void
     {
-
-        $value = value($value);
-
-        // Session extends Segment so to not inject session into session or segment we do this
-        if (is_object($value) && get_class($value) === self::class)
+        try
         {
-            if ($value->data !== $this->data)
+            $value = value($value);
+
+            // Session extends Segment so to not inject session into session or segment we do this
+            if (is_object($value) && get_class($value) === self::class)
             {
-                $value = $value->data;
+                if ($value->data !== $this->data)
+                {
+                    $value = $value->data;
+                }
             }
+
+            $this->assertValidValue($value);
+
+            if (is_array($value))
+            {
+                $segment = new SessionSegment($key, $value);
+                $this->data[$key] = $segment->data;
+                return;
+            }
+
+            $this->removeItem($key);
+            $this->data[$key] = $value;
         }
-
-        $this->assertValidValue($value);
-
-        if (is_array($value))
+        finally
         {
-            $segment = new SessionSegment($key, $value);
-            $this->data[$key] = $segment->data;
-            return;
+            ksort($this->data);
         }
-
-        $this->removeItem($key);
-        $this->data[$key] = $value;
     }
 
     public function offsetExists(mixed $offset): bool
@@ -221,6 +227,22 @@ class SessionSegment implements Storage, Stringable
     public function offsetUnset(mixed $offset): void
     {
         $this->removeItem($offset);
+    }
+
+    /**
+     * Iterates entries from the session segment
+     */
+    public function entries(Sort $sort = Sort::ASC): iterable
+    {
+
+
+
+        foreach (Range::of($this) as $index)
+        {
+            $key = $this->key($index);
+
+            yield $key => $this->getItem($key);
+        }
     }
 
 }
