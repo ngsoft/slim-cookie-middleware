@@ -120,7 +120,7 @@ class CookieMiddleware implements MiddlewareInterface
             }
         }
 
-        return $defaultValue;
+        return value($defaultValue);
     }
 
 }

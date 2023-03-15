@@ -26,9 +26,9 @@ class CookieParams
         return $clone;
     }
 
-    public function withExpiresAfter(int $expiresAfter)
+    public function withExpiresAfter(int $days)
     {
-        return $this->getClone('expiresAfter', $expiresAfter);
+        return $this->getClone('expiresAfter', $days);
     }
 
     public function withPath(string $path)

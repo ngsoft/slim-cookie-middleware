@@ -27,15 +27,38 @@ class Cookie implements Stringable
         $this->setValue($value);
     }
 
-    public function withParams(CookieParams $params)
+    protected function getClone(string $prop, mixed $value): static
     {
+        $clone = clone $this;
+        $clone->{$prop} = $value;
+        return $clone;
+    }
+
+    public function withParams(CookieParams $params): static
+    {
+
 
         $clone = clone $this;
         $clone->params = $params;
         return $clone;
     }
 
-    public function setName(string $name)
+    public function withName(string $name): static
+    {
+
+        $clone = clone $this;
+        $clone->setName($name);
+        return $clone;
+    }
+
+    public function withValue(int|float|bool|string $value): static
+    {
+        $clone = clone $this;
+        $clone->setValue($value);
+        return $clone;
+    }
+
+    protected function setName(string $name)
     {
         if (empty($name) || preg_match(self::INVALID_NAME_REGEX, $name))
         {
@@ -46,7 +69,7 @@ class Cookie implements Stringable
         return $this;
     }
 
-    public function setValue(int|float|bool|string $value)
+    protected function setValue(int|float|bool|string $value)
     {
         $this->value = is_string($value) ? $value : json_encode($value);
         return $this;

@@ -21,6 +21,13 @@ class SessionMiddleware implements MiddlewareInterface
 
     protected Session $session;
 
+    public function __construct(
+            protected ?CookieMiddleware $cookieMiddleware = null
+    )
+    {
+
+    }
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
 
@@ -29,50 +36,46 @@ class SessionMiddleware implements MiddlewareInterface
 
         if (PHP_SESSION_DISABLED !== session_status())
         {
-            /** @var CookieMiddleware|null $cookieMiddleware */
-            $cookieMiddleware = $request->getAttribute(CookieMiddleware::COOKIE_ATTRIBUTE);
+            /** @var CookieMiddleware $cookieMiddleware */
+            $cookieMiddleware = $request->getAttribute(CookieMiddleware::COOKIE_ATTRIBUTE) ?? $this->cookieMiddleware ??= new CookieMiddleware();
 
-            if ($cookieMiddleware instanceof CookieMiddleware)
+            if ($id = $cookieMiddleware->getCookie(session_name()))
+            {
+                $session = new Session($id, $this->loadSession($id));
+            }
+            else
+            {
+                $session = new Session($random);
+            }
+
+
+            $response = $handler->handle(
+                    $request->withAttribute(
+                            static::SESSION_ATTRIBUTE,
+                            $session
+                    )
+            );
+
+            if ( ! $cookieMiddleware->isLocked())
+            {
+                $this->saveSession($session);
+            }
+
+            if (is_null($id))
             {
 
-                if ($id = $cookieMiddleware->getCookie(session_name()))
-                {
-                    $session = new Session($id, $this->loadSession($id));
-                }
-                else
-                {
-                    $session = new Session($random);
-                }
-
-
-                $response = $handler->handle(
-                        $request->withAttribute(
-                                static::SESSION_ATTRIBUTE,
-                                $session
+                $cookieMiddleware->addCookie(
+                        new Cookie(session_name(), $session->getIdentifier(),
+                                new CookieParams(
+                                        path: '/',
+                                        secure: true,
+                                        httponly: true,
+                                        samesite: SameSite::STRICT
+                                )
                         )
                 );
-
-                if ( ! $cookieMiddleware->isLocked())
-                {
-                    $this->saveSession($session);
-                }
-
-                if (is_null($id))
-                {
-
-                    $cookieMiddleware->addCookie(
-                            new Cookie(session_name(), $session->getIdentifier(),
-                                    new CookieParams(
-                                            path: '/',
-                                            secure: true,
-                                            httponly: true,
-                                            samesite: SameSite::STRICT
-                                    )
-                            )
-                    );
-                }
-                return $response;
             }
+            return $response;
         }
 
         return $handler->handle($request->withAttribute(self::SESSION_ATTRIBUTE, new Session($random)));
