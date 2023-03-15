@@ -17,6 +17,14 @@ class Cookie implements Stringable
     protected string $name;
     protected string $value;
 
+    /**
+     * Create a new Cookie
+     */
+    public static function create(string $name, int|float|bool|string $value, ?CookieAttributes $attributes = null): static
+    {
+        return new static($name, $value, $attributes ?? new CookieAttributes());
+    }
+
     public function __construct(
             string $name,
             int|float|bool|string $value,

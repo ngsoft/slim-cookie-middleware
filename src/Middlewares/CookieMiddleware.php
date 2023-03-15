@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace NGSOFT\Middlewares;
 
-use NGSOFT\Cookies\{
-    Cookie, CookieParams
+use NGSOFT\{
+    Cookies\Cookie, Cookies\CookieAttributes, Cookies\CookieParams, Traits\ObjectLock
 };
 use Psr\Http\{
     Message\ResponseInterface, Message\ServerRequestInterface, Server\MiddlewareInterface, Server\RequestHandlerInterface
 };
+use function value;
 
 class CookieMiddleware implements MiddlewareInterface
 {
 
-    use \NGSOFT\Traits\ObjectLock;
+    use ObjectLock;
 
     public const VERSION = '1.1.0';
     public const COOKIE_ATTRIBUTE = 'cookies';
@@ -25,7 +26,7 @@ class CookieMiddleware implements MiddlewareInterface
     ];
 
     public function __construct(
-            protected CookieParams $params = new CookieParams()
+            protected CookieAttributes $params = new CookieAttributes()
     )
     {
 
