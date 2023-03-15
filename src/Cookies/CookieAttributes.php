@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace NGSOFT\Cookies;
 
-class CookieAttributes
+final class CookieAttributes
 {
 
     /**
@@ -50,7 +50,7 @@ class CookieAttributes
         return new static($expiresAfter, $path, $domain, $secure, $httponly, $samesite);
     }
 
-    protected function getClone(string $prop, mixed $value): static
+    private function getClone(string $prop, mixed $value): static
     {
         $clone = clone $this;
         $clone->{$prop} = $value;

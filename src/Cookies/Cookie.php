@@ -9,13 +9,13 @@ use InvalidArgumentException,
     Stringable;
 use const NGSOFT\Tools\DAY;
 
-class Cookie implements Stringable
+final class Cookie implements Stringable
 {
 
-    protected const INVALID_NAME_REGEX = '/[=,; \t\r\n\013\014]/';
+    private const INVALID_NAME_REGEX = '/[=,; \t\r\n\013\014]/';
 
-    protected string $name;
-    protected string $value;
+    private string $name;
+    private string $value;
 
     /**
      * Create a new Cookie
@@ -28,7 +28,7 @@ class Cookie implements Stringable
     public function __construct(
             string $name,
             int|float|bool|string $value,
-            protected CookieAttributes $attributes = new CookieAttributes()
+            private CookieAttributes $attributes = new CookieAttributes()
     )
     {
         $this->setName($name);
