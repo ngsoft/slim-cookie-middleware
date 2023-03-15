@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace NGSOFT\Session;
 
 use NGSOFT\{
-    DataStructure\Storage, Traits\StringableObject
+    DataStructure\Storage, Traits\ClassUtils, Traits\StringableObject
 };
 use Stringable,
     ValueError;
@@ -13,10 +13,14 @@ use function get_debug_type,
              NGSOFT\Tools\count_value,
              value;
 
-class Segment implements Storage, Stringable
+/**
+ *
+ */
+class SessionSegment implements Storage, Stringable
 {
 
-    use StringableObject;
+    use StringableObject,
+        ClassUtils;
 
     protected array $data;
     protected array $segments;
@@ -101,7 +105,7 @@ class Segment implements Storage, Stringable
             return count($this->data);
         }
 
-        if ($value instanceof Segment)
+        if ($value instanceof SessionSegment)
         {
             $value = $value->toArray();
         }
@@ -124,7 +128,7 @@ class Segment implements Storage, Stringable
         {
             if (is_array($this->data[$key]))
             {
-                return $this->segments[$key] ??= new Segment($key, $this->data[$key]);
+                return $this->segments[$key] ??= new SessionSegment($key, $this->data[$key]);
             }
 
             return $this->data[$key];
@@ -190,7 +194,7 @@ class Segment implements Storage, Stringable
 
         if (is_array($value))
         {
-            $segment = new Segment($key, $value);
+            $segment = new SessionSegment($key, $value);
             $this->data[$key] = $segment->data;
             return;
         }

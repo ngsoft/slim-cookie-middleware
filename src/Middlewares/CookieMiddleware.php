@@ -24,7 +24,9 @@ class CookieMiddleware implements MiddlewareInterface
         'request' => [],
     ];
 
-    public function __construct(protected CookieParams $params = new CookieParams())
+    public function __construct(
+            protected CookieParams $params = new CookieParams()
+    )
     {
 
     }
