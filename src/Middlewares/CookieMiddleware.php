@@ -63,11 +63,10 @@ class CookieMiddleware implements MiddlewareInterface
      */
     protected function createResponse(ResponseInterface $response): ResponseInterface
     {
+        $this->handleSessionClose();
 
         if ( ! $this->isLocked())
         {
-            $this->handleSessionClose();
-
             /** @var Cookie $cookie */
             foreach ($this->cookies['response'] as $cookie)
             {
