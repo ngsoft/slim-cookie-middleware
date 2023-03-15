@@ -20,29 +20,31 @@ class Cookie implements Stringable
     public function __construct(
             string $name,
             int|float|bool|string $value,
-            protected CookieParams $params = new CookieParams()
+            protected CookieAttributes $attributes = new CookieAttributes()
     )
     {
         $this->setName($name);
         $this->setValue($value);
     }
 
-    protected function getClone(string $prop, mixed $value): static
+    /**
+     * Get a new cookie with defined params
+     */
+    public function withAttributes(CookieAttributes $params): static
     {
-        $clone = clone $this;
-        $clone->{$prop} = $value;
-        return $clone;
-    }
-
-    public function withParams(CookieParams $params): static
-    {
-
-
         $clone = clone $this;
         $clone->params = $params;
         return $clone;
     }
 
+    public function withKeyValuePair(string $name, int|float|bool|string $value): static
+    {
+        return $this->withName($name)->withValue($value);
+    }
+
+    /**
+     * Get a new cookie with provided name
+     */
     public function withName(string $name): static
     {
 
@@ -51,6 +53,9 @@ class Cookie implements Stringable
         return $clone;
     }
 
+    /**
+     * Get a new cookie with provided value
+     */
     public function withValue(int|float|bool|string $value): static
     {
         $clone = clone $this;
@@ -93,14 +98,14 @@ class Cookie implements Stringable
         return $value;
     }
 
-    public function getParams(): CookieParams
+    public function getAttributes(): CookieParams
     {
-        return $this->params;
+        return $this->attributes;
     }
 
     public function getHeaderLine(): string
     {
-        $params = $this->params;
+        $params = $this->attributes;
 
         $now = time();
 

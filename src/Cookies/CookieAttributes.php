@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace NGSOFT\Cookies;
 
-class CookieParams
+class CookieAttributes
 {
 
     public function __construct(
