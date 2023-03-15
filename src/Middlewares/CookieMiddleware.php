@@ -25,7 +25,7 @@ class CookieMiddleware implements MiddlewareInterface
         'response' => [],
         'request' => [],
     ];
-    protected Session $session;
+    protected ?Session $session = null;
 
     public function __construct(
             protected CookieAttributes $params = new CookieAttributes(),
@@ -83,6 +83,14 @@ class CookieMiddleware implements MiddlewareInterface
     ////////////////////////////   Session Handling   ////////////////////////////
 
     /**
+     * Get current session
+     */
+    public function getSession(): Session
+    {
+        return $this->session ?? new Session($this->generateRandomString());
+    }
+
+    /**
      * Generates random string for the session id
      */
     protected function generateRandomString(int $strength = 16): string
@@ -103,11 +111,14 @@ class CookieMiddleware implements MiddlewareInterface
         if (PHP_SESSION_DISABLED === session_status())
         {
             $this->managesSession = false;
-            return $request->withAttribute(self::SESSION_ATTRIBUTE, $this->session = new Session($this->generateRandomString()));
+            return $request->withAttribute(self::SESSION_ATTRIBUTE, $this->getSession());
         }
 
 
-        return $request->withAttribute(self::SESSION_ATTRIBUTE, $this->session = new Session($this->getCookie(session_name(), $this->generateRandomString()), true));
+        return $request->withAttribute(
+                        self::SESSION_ATTRIBUTE,
+                        $this->session = new Session($this->getCookie(session_name(), $this->generateRandomString()), true)
+        );
     }
 
     protected function createSessionCookie(): void
@@ -116,7 +127,8 @@ class CookieMiddleware implements MiddlewareInterface
         {
 
             $this->addCookie(Cookie::create(
-                            $name, $this->session->getIdentifier(),
+                            $name,
+                            $this->session->getIdentifier(),
                             CookieAttributes::create(
                                     path: '/',
                                     secure: true,
