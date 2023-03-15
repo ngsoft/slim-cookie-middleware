@@ -9,7 +9,7 @@ use InvalidArgumentException,
     Stringable;
 use const NGSOFT\Tools\DAY;
 
-final class Cookie implements Stringable
+final class Cookie implements Stringable, \JsonSerializable
 {
 
     private const INVALID_NAME_REGEX = '/[=,; \t\r\n\013\014]/';
@@ -200,6 +200,13 @@ final class Cookie implements Stringable
     public function __toString(): string
     {
         return $this->getHeaderLine();
+    }
+
+    public function jsonSerialize(): mixed
+    {
+        return [
+            $this->name => $this->value,
+        ];
     }
 
 }
