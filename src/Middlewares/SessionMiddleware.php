@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace NGSOFT\Middlewares;
 
 use NGSOFT\{
-    Cookies\Cookie, Cookies\CookieParams, Cookies\SameSite, Session\Session, Session\Token, Traits\ObjectLock
+    Cookies\Cookie, Cookies\CookieParams, Cookies\SameSite, Session\Token, Traits\ObjectLock
 };
 use Psr\Http\{
     Message\ResponseInterface, Message\ServerRequestInterface, Server\MiddlewareInterface, Server\RequestHandlerInterface
