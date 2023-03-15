@@ -110,16 +110,9 @@ class CookieMiddleware implements MiddlewareInterface
         return $request->withAttribute(self::SESSION_ATTRIBUTE, $this->session = new Session($this->getCookie(session_name(), $this->generateRandomString()), true));
     }
 
-    protected function generateSessionResponse(ResponseInterface $response): ResponseInterface
+    protected function createSessionCookie(): void
     {
-
-        if ( ! $this->managesSession)
-        {
-            return $response;
-        }
-
-
-        if ( ! $this->hasCookie($name = session_name()))
+        if ($this->managesSession && ! $this->hasCookie($name = session_name()))
         {
 
             $this->addCookie(Cookie::create(
