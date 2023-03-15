@@ -38,9 +38,10 @@ final class Cookie implements Stringable, \JsonSerializable
     /**
      * Adds the cookie to the middleware to be sent to the response
      */
-    public function sendToResponse(CookieMiddleware $cookieMiddleware): void
+    public function sendToResponse(CookieMiddleware $cookieMiddleware): static
     {
         $cookieMiddleware->addCookie($this);
+        return $this;
     }
 
     /**
