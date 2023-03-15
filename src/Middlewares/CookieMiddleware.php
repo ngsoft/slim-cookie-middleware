@@ -59,6 +59,9 @@ class CookieMiddleware implements MiddlewareInterface
 
     ////////////////////////////   Session Handling   ////////////////////////////
 
+    /**
+     * Generates random string for the session id
+     */
     protected function generateRandomString(int $strength = 16): string
     {
         return bin2hex(random_bytes(intval(max(16, $strength))));
