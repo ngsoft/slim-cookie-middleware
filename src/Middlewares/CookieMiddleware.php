@@ -28,7 +28,7 @@ class CookieMiddleware implements MiddlewareInterface
     protected ?Session $session = null;
 
     public function __construct(
-            protected CookieAttributes $params = new CookieAttributes(),
+            protected CookieAttributes $attributes = new CookieAttributes(),
             protected bool $managesSession = true
     )
     {
@@ -118,7 +118,7 @@ class CookieMiddleware implements MiddlewareInterface
 
         return $request->withAttribute(
                         self::SESSION_ATTRIBUTE,
-                        $this->session = new Session($this->getCookie(session_name(), $this->generateRandomString()), true)
+                        $this->session = new Session($this->readCookie(session_name(), $this->generateRandomString()), true)
         );
     }
 
@@ -157,17 +157,17 @@ class CookieMiddleware implements MiddlewareInterface
     /**
      * Create a cookie
      */
-    public function createCookie(string $name, int|float|bool|string $value, CookieAttributes $params = null): Cookie
+    public function createCookie(string $name, int|float|bool|string $value, CookieAttributes $attributes = null): Cookie
     {
-        return new Cookie($name, $value, $params ?? $this->params);
+        return new Cookie($name, $value, $attributes ?? $this->attributes);
     }
 
     /**
      * Adds a cookie to the response
      */
-    public function setCookie(string $name, int|float|bool|string $value, CookieAttributes $params = null): Cookie
+    public function setCookie(string $name, int|float|bool|string $value, CookieAttributes $attributes = null): Cookie
     {
-        return $this->addCookie($this->createCookie($name, $value, $params));
+        return $this->addCookie($this->createCookie($name, $value, $attributes));
     }
 
     /**
@@ -183,13 +183,33 @@ class CookieMiddleware implements MiddlewareInterface
      */
     public function removeCookie(string $name): Cookie
     {
-        return $this->setCookie($name, 'null', $this->params->withExpiresAfter(-1));
+        return $this->setCookie($name, 'null', $this->attributes->withExpiresAfter(-1));
     }
 
     /**
-     * Get a cookie value by name
+     * Get a cookie with that name
+     * If cookie exists, it will be returned else a new one will be created with default attributes and null value
      */
-    public function getCookie(string $name, mixed $defaultValue = null): mixed
+    public function getCookie(string $name): Cookie
+    {
+
+
+        foreach ($this->cookies as $repository)
+        {
+            if (isset($repository[$name]))
+            {
+
+                return $repository[$name];
+            }
+        }
+
+        return $this->createCookie($name, 'null');
+    }
+
+    /**
+     * Reads a cookie value by name
+     */
+    public function readCookie(string $name, mixed $defaultValue = null): mixed
     {
 
         foreach ($this->cookies as $repository)
@@ -208,7 +228,7 @@ class CookieMiddleware implements MiddlewareInterface
      */
     public function hasCookie(string $name): bool
     {
-        return $this->getCookie($name) !== null;
+        return $this->readCookie($name) !== null;
     }
 
     /**
