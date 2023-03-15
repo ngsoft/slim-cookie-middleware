@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace NGSOFT\Middlewares;
 
 use NGSOFT\{
-    Cookies\Cookie, Cookies\CookieAttributes, Cookies\CookieParams, Cookies\SameSite, Session\Session, Traits\ObjectLock
+    Cookies\Cookie, Cookies\CookieAttributes, Cookies\SameSite, Session\Session, Traits\ObjectLock
 };
 use Psr\Http\{
     Message\ResponseInterface, Message\ServerRequestInterface, Server\MiddlewareInterface, Server\RequestHandlerInterface
@@ -49,11 +49,9 @@ class CookieMiddleware implements MiddlewareInterface
          */
         $request = $request->withAttribute(static::COOKIE_ATTRIBUTE, $this);
 
-        $reqParams = $this->params;
-
         foreach ($request->getCookieParams() as $name => $value)
         {
-            $this->cookies['request'][$name] = $this->createCookie($name, $value, $reqParams);
+            $this->cookies['request'][$name] = $this->createCookie($name, $value);
         }
 
 
@@ -68,7 +66,7 @@ class CookieMiddleware implements MiddlewareInterface
 
         if ( ! $this->isLocked())
         {
-            $response = $this->generateSessionResponse($response);
+            $this->handleSessionClose();
 
             /** @var Cookie $cookie */
             foreach ($this->cookies['response'] as $cookie)
@@ -156,7 +154,7 @@ class CookieMiddleware implements MiddlewareInterface
     /**
      * Create a cookie
      */
-    public function createCookie(string $name, int|float|bool|string $value, CookieParams $params = null): Cookie
+    public function createCookie(string $name, int|float|bool|string $value, CookieAttributes $params = null): Cookie
     {
         return new Cookie($name, $value, $params ?? $this->params);
     }
@@ -164,7 +162,7 @@ class CookieMiddleware implements MiddlewareInterface
     /**
      * Adds a cookie to the response
      */
-    public function setCookie(string $name, int|float|bool|string $value, CookieParams $params = null): Cookie
+    public function setCookie(string $name, int|float|bool|string $value, CookieAttributes $params = null): Cookie
     {
         return $this->addCookie($this->createCookie($name, $value, $params));
     }

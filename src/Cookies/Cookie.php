@@ -38,10 +38,10 @@ class Cookie implements Stringable
     /**
      * Get a new cookie with defined attributes
      */
-    public function withAttributes(CookieAttributes $params): static
+    public function withAttributes(CookieAttributes $attributes): static
     {
         $clone = clone $this;
-        $clone->params = $params;
+        $clone->attributes = $attributes;
         return $clone;
     }
 

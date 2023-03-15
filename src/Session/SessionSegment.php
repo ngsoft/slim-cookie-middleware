@@ -246,9 +246,10 @@ class SessionSegment implements Storage, Stringable, ReversibleIterator
 
         foreach (Range::of($this)->entries($sort) as $index)
         {
-            $key = $this->key($index);
-
-            yield $key => $this->getItem($key);
+            if ($key = $this->key($index))
+            {
+                yield $key => $this->getItem($key);
+            }
         }
     }
 
