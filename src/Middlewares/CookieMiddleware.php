@@ -121,21 +121,33 @@ class CookieMiddleware implements MiddlewareInterface
         );
     }
 
-    protected function createSessionCookie(): void
+    /**
+     * Closes the session and create session cookie if it does not exists
+     */
+    protected function handleSessionClose(): void
     {
-        if ($this->managesSession && ! $this->hasCookie($name = session_name()))
+        if ($this->managesSession)
         {
 
-            $this->addCookie(Cookie::create(
-                            $name,
-                            $this->session->getIdentifier(),
-                            CookieAttributes::create(
-                                    path: '/',
-                                    secure: true,
-                                    httponly: true,
-                                    samesite: SameSite::STRICT
-                            )
-            ));
+            if ($this->hasCookie($name = session_name()))
+            {
+                $this->addCookie(Cookie::create(
+                                $name,
+                                $this->session->getIdentifier(),
+                                CookieAttributes::create(
+                                        path: '/',
+                                        secure: true,
+                                        httponly: true,
+                                        samesite: SameSite::STRICT
+                                )
+                ));
+            }
+
+
+            if (PHP_SESSION_ACTIVE === @session_status())
+            {
+                @session_write_close();
+            }
         }
     }
 
