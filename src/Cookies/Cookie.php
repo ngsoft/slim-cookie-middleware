@@ -108,7 +108,7 @@ class Cookie implements Stringable
     /**
      * Cookie parsed value
      */
-    public function getValue(): int|float|bool|string
+    public function getValue(): null|int|float|bool|string
     {
 
         $value = $this->value;

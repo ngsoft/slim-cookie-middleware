@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace NGSOFT\Middlewares;
 
 use NGSOFT\{
-    Cookies\Cookie, Cookies\CookieAttributes, Cookies\CookieParams, Traits\ObjectLock
+    Cookies\Cookie, Cookies\CookieAttributes, Cookies\CookieParams, Session\Session, Traits\ObjectLock
 };
 use Psr\Http\{
     Message\ResponseInterface, Message\ServerRequestInterface, Server\MiddlewareInterface, Server\RequestHandlerInterface
@@ -28,6 +28,7 @@ class CookieMiddleware implements MiddlewareInterface
 
     public function __construct(
             protected CookieAttributes $params = new CookieAttributes(),
+            protected bool $managesSession = true
     )
     {
 
@@ -54,7 +55,30 @@ class CookieMiddleware implements MiddlewareInterface
             $this->cookies['request'][$name] = $this->createCookie($name, $value, $reqParams);
         }
 
-        return $this->createResponse($handler->handle($request));
+
+        return $this->createResponse($handler->handle($this->generateSession($request)));
+    }
+
+    /**
+     * Adds cookies to the response
+     */
+    protected function createResponse(ResponseInterface $response): ResponseInterface
+    {
+
+        if ( ! $this->isLocked())
+        {
+
+
+
+
+            /** @var Cookie $cookie */
+            foreach ($this->cookies['response'] as $cookie)
+            {
+                $response = $response->withAddedHeader('Set-Cookie', $cookie->getHeaderLine());
+            }
+        }
+
+        return $response;
     }
 
     ////////////////////////////   Session Handling   ////////////////////////////
@@ -70,34 +94,24 @@ class CookieMiddleware implements MiddlewareInterface
     /**
      * Session Handling integrated middleware
      */
-    protected function processSession(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
+    protected function generateSession(ServerRequestInterface $request): ServerRequestInterface
     {
+        if ( ! $this->managesSession)
+        {
+            return $request;
+        }
+
         if (PHP_SESSION_DISABLED === session_status())
         {
-            return $response;
+            $this->managesSession = false;
+            return $request->withAttribute(self::SESSION_ATTRIBUTE, new Session($this->generateRandomString()));
         }
+
+
+        return $request->withAttribute(self::SESSION_ATTRIBUTE, new Session($this->getCookie(session_name(), $this->generateRandomString()), true));
     }
 
     ////////////////////////////   Cookie Handling   ////////////////////////////
-
-    /**
-     * Adds cookies to the response
-     */
-    protected function createResponse(ResponseInterface $response): ResponseInterface
-    {
-
-        if ( ! $this->isLocked())
-        {
-
-            /** @var Cookie $cookie */
-            foreach ($this->cookies['response'] as $cookie)
-            {
-                $response = $response->withAddedHeader('Set-Cookie', $cookie->getHeaderLine());
-            }
-        }
-
-        return $response;
-    }
 
     /**
      * Create a cookie
@@ -146,6 +160,11 @@ class CookieMiddleware implements MiddlewareInterface
         }
 
         return value($defaultValue);
+    }
+
+    public function hasCookie(string $name): bool
+    {
+        return $this->getCookie($name) !== null;
     }
 
 }
