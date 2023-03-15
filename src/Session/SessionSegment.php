@@ -134,7 +134,7 @@ class SessionSegment implements Storage, Stringable, ReversibleIterator
 
         if ($this->hasItem($key))
         {
-            if (is_array($this->data[$key]))
+            if (is_array($this->data[$key]) && ! array_is_list($this->data[$key]))
             {
                 return $this->segments[$key] ??= $this->createSegment($key);
             }
@@ -201,7 +201,7 @@ class SessionSegment implements Storage, Stringable, ReversibleIterator
 
             $this->assertValidValue($value);
             // we check data recursively
-            if (is_array($value))
+            if (is_array($value) && ! array_is_list($value))
             {
                 // this segment will never be used except for this
                 $segment = new SessionSegment($key, $value);

@@ -44,14 +44,18 @@ class CookieMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+
+
         /**
          * Register middleware as attribute
          */
         $request = $request->withAttribute(static::COOKIE_ATTRIBUTE, $this);
 
+        $empty = new CookieAttributes();
+
         foreach ($request->getCookieParams() as $name => $value)
         {
-            $this->cookies['request'][$name] = $this->createCookie($name, $value);
+            $this->cookies['request'][$name] = $this->createCookie($name, $value, $empty);
         }
 
 
@@ -126,7 +130,7 @@ class CookieMiddleware implements MiddlewareInterface
         if ($this->managesSession)
         {
 
-            if ($this->hasCookie($name = session_name()))
+            if ( ! $this->hasCookie($name = session_name()))
             {
                 $this->addCookie(Cookie::create(
                                 $name,
