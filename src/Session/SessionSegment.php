@@ -67,7 +67,7 @@ class SessionSegment implements Storage, Stringable, ReversibleIterator
     protected function createSegment($key): self
     {
         // modifications in the segment will also be made in the parent array
-        $segment = new SessionSegment($key);
+        $segment = new self($key);
         $segment->data = &$this->data[$key];
         return $segment;
     }
@@ -113,7 +113,7 @@ class SessionSegment implements Storage, Stringable, ReversibleIterator
             return count($this->data);
         }
 
-        if ($value instanceof SessionSegment)
+        if ($value instanceof self)
         {
             $value = $value->toArray();
         }
@@ -204,7 +204,7 @@ class SessionSegment implements Storage, Stringable, ReversibleIterator
             if (is_array($value) && ! array_is_list($value))
             {
                 // this segment will never be used except for this
-                $segment = new SessionSegment($key, $value);
+                $segment = new self($key, $value);
                 $this->data[$key] = $segment->data;
                 return;
             }

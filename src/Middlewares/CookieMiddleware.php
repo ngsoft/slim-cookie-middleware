@@ -35,6 +35,11 @@ class CookieMiddleware implements MiddlewareInterface
 
     }
 
+    public function __debugInfo(): array
+    {
+        return [];
+    }
+
     /**
      * Participant in processing a server request and response.
      *
